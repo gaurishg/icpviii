@@ -3,17 +3,23 @@ from dqrobotics.utils.DQ_Math import deg2rad, rad2deg
 from firebase_config import firebaseConfig
 import serial
 import json
-import pyrebase
 import PySimpleGUIQt as sg
 import time
 from vrep_functions_and_constants import ParseSerialInput, ParseInputType
 
-firebase = pyrebase.initialize_app(firebaseConfig)
+import firebase_admin
 
-db = firebase.database()
-auth = firebase.auth()
+from firebase_admin import db
+from firebase_admin import credentials
 
-print(f'Connected to firebase: {firebase}, db: {db}')
+cred = credentials.Certificate("icpviiiteleoperatedrobots-firebase-adminsdk-2ekzx-7f223412d4.json")
+default_app = firebase_admin.initialize_app(cred, {
+	'databaseURL':"https://icpviiiteleoperatedrobots-default-rtdb.asia-southeast1.firebasedatabase.app/"
+	})
+
+ref = db.reference("/")
+
+# print(f'Connected to firebase: {firebase}, db: {db}')
 
 ser = serial.Serial('COM9', 9600, timeout=1, write_timeout=0)
 print(f'Serial connection made: {ser}')
@@ -29,7 +35,7 @@ while True:
     print('While True')
     # time.sleep(.1)
     print('Slept')
-    data = db.get().val()['angles']
+    data = ref.get()['angles']
     print(f'Got values: {data}')
     t1 = data['t1']
     t2 = data['t2']
